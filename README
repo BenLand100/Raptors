@@ -1,0 +1,29 @@
+Raptors is a simple genetic algorithm that solves a problem similar to those 
+outlined in https://www.xkcd.com/135/ however here the scenario is as follows:
+
+The raptor is at (10,0) meters and you are at (0,0) meters. The raptor will
+always accelerate toward you at 20 m/s^2 with a max speed of 25 m/s while you 
+will accelerate in your current direction at 5.2 m/s^2 with a max speed of 
+6 m/s. There is a global velocity extinction rate (drag) of 0.8 meaning that 
+your velocity would decreasy by 80% in one second if you did not accelerate.
+
+In this model, your current direction is defined by a sequence of Actions which
+are either NONE, LEFT, or RIGHT. Each timestep of the simulation has an action
+associated with it. 
+NONE - keep the curent direction
+LEFT - turn left by 90deg
+RIGHT - turn right by 90deg
+
+It may not seem to be the case, but this actually produces "realistic" paths.
+
+A generation of the simulation consists of some number of samples which 
+correspond to different sequences of actions you may take. Each sample is 
+simulated to calculate the survival time given by when the raptor is less than 
+10cm from your location. Then some percent of slowest paths are elimated and 
+the generation is repopulated with surviving paths and mutations of those 
+paths. A mutated path is a duplicate of a path with between 1 and 5 random 
+action substitutions at random points in the sequence. Each surviving path gets 
+roughly an equal number of mutated offspring.
+
+The included Mathematica notebook vis.nb will generate gif images of the 25
+most successful paths for generations which can be combined into animated gifs.
