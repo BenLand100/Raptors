@@ -38,37 +38,35 @@ class UniformMutator : public Mutator {
 };
 
 class Simulation {
-    friend Mutator;
-    friend UniformMutator;
     
     public:
-        Simulation(int nsamples_, int nsteps_, double tstep_, double kill_dist_  = 0.1, double prune_percent_ = 0.995, Mutator *mutator_ = NULL, int seed = 8675309);
+        Simulation(int nsamples_, int nsteps_, double tstep_, Mutator &init, double kill_dist_  = 0.1, double prune_percent_ = 0.995, int seed = 8675309);
         ~Simulation();
         
         void stepGeneration();
+        void selectGeneration();
         void pruneGeneration();
-        void dump(std::ostream &out);
-        void evolveGeneration();
+        void evolveGeneration(Mutator &mutator);
         void resetGeneration();
         
-    protected:
+        void dump(std::ostream &out);
+        
         const int nsamples, nsteps;
         const double tstep, kill_dist;
+        std::mt19937 rng;
+        
+    protected:
         const double prune_percent;
         vec man_pos, raptor_pos, run_dir;
         std::vector<Entity> man, raptor;
         std::vector<Action*> actions;
         std::vector<bool> survived;
         std::vector<int> prune_order;
-            
-        std::mt19937 rng;
         
-        void initFirstGen();
+        void initFirstGen(Mutator &init);
         
         void stepEntity(Entity &e);
         bool runSim(Entity &man, Entity &raptor, Action *actions);
-        
-        Mutator *mutate;
         
 };
 

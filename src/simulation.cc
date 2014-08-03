@@ -20,11 +20,8 @@ void UniformMutator::operator()(Action *src, Action *dest, Simulation *sim) {
     }
 }
 
-Simulation::Simulation(int nsamples_, int nsteps_, double tstep_, double kill_dist_, double prune_percent_, Mutator *mutator_, int seed) : 
-    nsamples(nsamples_), nsteps(nsteps_), tstep(tstep_), kill_dist(kill_dist_), prune_percent(prune_percent_), mutate(mutator_), rng(seed) {
-    if (!mutate) {
-        mutate = new UniformMutator(1,5,0,nsteps);
-    }
+Simulation::Simulation(int nsamples_, int nsteps_, double tstep_, Mutator &init, double kill_dist_, double prune_percent_, int seed) : 
+    nsamples(nsamples_), nsteps(nsteps_), tstep(tstep_), kill_dist(kill_dist_), prune_percent(prune_percent_), rng(seed) {
     
     man_pos.x = 0.0;
     man_pos.y = 0.0;
@@ -33,18 +30,17 @@ Simulation::Simulation(int nsamples_, int nsteps_, double tstep_, double kill_di
     raptor_pos.x = 10.0;
     raptor_pos.y = 0.0;
     
-    initFirstGen();
+    initFirstGen(init);
 }
 
 Simulation::~Simulation() {
-    delete mutate;
     for (int i = 0; i < nsamples; i++) {
         delete actions[i];
         delete man[i].pos_hist;
     }
 }
 
-void Simulation::initFirstGen() {
+void Simulation::initFirstGen(Mutator &init) {
     man.resize(nsamples);
     raptor.resize(nsamples);
     actions.resize(nsamples);
@@ -60,7 +56,7 @@ void Simulation::initFirstGen() {
     for (int i = 0; i < nsamples; i++) { 
         //actions init
         actions[i] = new Action[nsteps];
-        (*mutate)(init_actions,actions[i],this);
+        init(init_actions,actions[i],this);
         
         //pruning init
         prune_order[i] = i;
@@ -202,7 +198,7 @@ void Simulation::dump(ostream &out) {
     }
 }
 
-void Simulation::evolveGeneration() {
+void Simulation::evolveGeneration(Mutator &mutate) {
     int nchildren = 0;
     for (int i = 0; i < nsamples; i++) {
         if (survived[i]) nchildren++;
@@ -214,7 +210,7 @@ void Simulation::evolveGeneration() {
         if (child = nchildren) { while (breed < nsamples && !survived[breed]) { breed++; } }
         if (fill == nsamples || breed == nsamples) break;
         
-        (*mutate)(actions[breed],actions[fill],this);
+        mutate(actions[breed],actions[fill],this);
         
     }   
 }

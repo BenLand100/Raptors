@@ -12,7 +12,8 @@ using namespace std;
 #define KILLDIST 0.1
 
 int main(int argc, char **argv) {
-    Simulation sim(NSAMPLES,NSTEPS,TINC,KILLDIST);
+    UniformMutator mutate(1,5,0,NSTEPS-1);
+    Simulation sim(NSAMPLES,NSTEPS,TINC,mutate,KILLDIST);
     for (int i = 0; i < 1000; i++) {
         cout << "Step: " << i << '\n';
         sim.stepGeneration();
@@ -25,7 +26,7 @@ int main(int argc, char **argv) {
         sim.dump(dat);
         dat.close();
         cout << "Evolve...\n";
-        sim.evolveGeneration();
+        sim.evolveGeneration(mutate);
         cout << "Reset...\n";
         sim.resetGeneration();
     }
